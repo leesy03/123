@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>게시판</title>
+    </head>
+    <style>
+       body{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    padding: 20px;
+    height: 100vh;
+    background-color: rgb(255, 245, 225)
+    }
+    fieldset{
+     border-color: rgb(255, 105, 105)
+    }
+    legend{
+        color:rgb(12, 24, 68);
+        font-size: 30px;
+    }
+
+    
+
+
+
+
+
+
+    </style>
+    <body>
+        <fieldset>
+            <legend>게시판</legend>
+       
+    
+        <!-- 검색 폼 -->
+        <div class="search-form">
+            <input type="text" id="search" placeholder="검색..." oninput="searchPosts()">
+            <button onclick="searchPosts()">검색</button>
+        </div>
+    
+        <!-- 글쓰기 폼 -->
+        <h2>글쓰기</h2>
+        <form id="postForm">
+            <input type="text" id="title" placeholder="제목" required><br>
+            <input type="text" id="author" placeholder="작성자" required><br>
+            <textarea id="content" placeholder="내용" required></textarea><br>
+            <button type="submit">작성하기</button>
+        </form>
+    </fieldset>
+    <fieldset>
+
+        
+    
+        <!-- 게시글 목록 -->
+        <legend>게시글</legend>
+        <ul id="postList">
+            <!-- 게시글 항목들이 여기에 동적으로 추가됩니다. -->
+        </ul>
+    </fieldset>
+        <script>
+            // 게시글 데이터를 저장하는 배열
+            let posts = [];
+    
+            // 글 작성 시 게시글 추가
+            document.getElementById('postForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+    
+                const title = document.getElementById('title').value;
+                const author = document.getElementById('author').value;
+                const content = document.getElementById('content').value;
+    
+                const newPost = {
+                    id: Date.now(),  // 고유 ID
+                    title,
+                    author,
+                    content,
+                    date: new Date().toLocaleString(),
+                    likes: 0
+                };
+    
+                posts.push(newPost);
+                renderPosts();
+            });
+    
+            // 게시글 렌더링 함수
+            function renderPosts() {
+                const postList = document.getElementById('postList');
+                postList.innerHTML = '';
+    
+                posts.forEach(post => {
+                    const postItem = document.createElement('li');
+                    postItem.innerHTML = `
+                        <h3>${post.title}</h3>
+                        <p>${post.author} | ${post.date}</p>
+                        <p>${post.content.substring(0, 100)}...</p>
+                        <button onclick="viewPost(${post.id})">상세보기</button>
+                        <button onclick="deletePost(${post.id})">삭제</button>
+                        <button onclick="editPost(${post.id})">수정</button>
+                        <button onclick="likePost(${post.id})">추천 (${post.likes})</button>
+                    `;
+                    postList.appendChild(postItem);
+                });
+            }
+    
+            // 게시글 상세보기
+            function viewPost(postId) {
+                const post = posts.find(p => p.id === postId);
+                alert(`
+                    제목: ${post.title}
+                    작성자: ${post.author}
+                    날짜: ${post.date}
+                    내용: ${post.content}
+                `);
+            }
+    
+            // 게시글 삭제
+            function deletePost(postId) {
+                posts = posts.filter(p => p.id !== postId);
+                renderPosts();
+            }
+    
+            // 게시글 수정
+            function editPost(postId) {
+                const post = posts.find(p => p.id === postId);
+                const newTitle = prompt("새 제목을 입력하세요", post.title);
+                const newContent = prompt("새 내용을 입력하세요", post.content);
+    
+                if (newTitle !== null) post.title = newTitle;
+                if (newContent !== null) post.content = newContent;
+    
+                renderPosts();
+            }
+    
+            // 게시글 추천 (좋아요)
+            function likePost(postId) {
+                const post = posts.find(p => p.id === postId);
+                post.likes++;
+                renderPosts();
+            }
+    
+            // 검색 기능
+            function searchPosts() {
+                const searchText = document.getElementById('search').value.toLowerCase();
+                const filteredPosts = posts.filter(post => 
+                    post.title.toLowerCase().includes(searchText) ||
+                    post.author.toLowerCase().includes(searchText)
+                );
+                
+                renderSearchResults(filteredPosts);
+            }
+    
+            // 검색된 결과만 표시
+            function renderSearchResults(filteredPosts) {
+                const postList = document.getElementById('postList');
+                postList.innerHTML = '';
+    
+                filteredPosts.forEach(post => {
+                    const postItem = document.createElement('li');
+                    postItem.innerHTML = `
+                        <h3>${post.title}</h3>
+                        <p>${post.author} | ${post.date}</p>
+                        <p>${post.content.substring(0, 100)}...</p>
+                        <button onclick="viewPost(${post.id})">상세보기</button>
+                        <button onclick="deletePost(${post.id})">삭제</button>
+                        <button onclick="editPost(${post.id})">수정</button>
+                        <button onclick="likePost(${post.id})">추천 (${post.likes})</button>
+                    `;
+                    postList.appendChild(postItem);
+                });
+            } 
+        </script>
+    </body>
+    
+    </html>
+    
